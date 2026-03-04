@@ -1,0 +1,89 @@
+SPI_SND_DEC:
+
+So far only known instances of it being used:
+
+https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/speaker2/lib_speaker2/src/speaker2.c#L442
+https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/recnplay/lib_recnplay/src/recnplay.c#L307
+https://github.com/brathis/isd2360/blob/master/libraries/ISD2360/ISD2360.cpp#L451
+
+All instances seem to cap the data at 256 bytes. Not sure why
+
+If a stop command isn't periodically sent and/or the audio header isn't resent the audio becomes severely corrupted
+
+
+There's a unknown correlation on the audio header bitrate and the audio file bitrate when doing SPI decode
+
+So far the best results I could get was with exporting audio from Audacity with a 60000hz bitrate and PCM16 bit depth
+
+Max frequency I measured from the southbridge when doing a SPI transfer was ~500khz, could be related?
+
+
+AUDIO HEADER:
+
+
+Compression algorithm bytes from ISD15100 CFG0 register table (not applicable to the ISD2100 but has similarities to the "audio header")
+
+ADPCM 2   2       0x02  00000010
+ADPCM 3   3       0x03  00000011
+ADPCM 4   4       0x04  00000100
+ADPCM 5   5       0x05  00000101
+
+μ-Law 6  16       0x10  00010000
+μ-Law 7  17       0x11  00010001
+μ-Law 8  18       0x12  00010010
+
+Dμ-Law 6 20       0x14  00010100
+Dμ-Law 7 21       0x15  00010101
+Dμ-Law 8 22       0x16  00010110
+
+PCM 8    24       0x18  00011000
+PCM 10   25       0x19  00011001
+PCM 12   27       0x1B  00011011
+
+
+"audio header" dumped from VP bins created by the ISD2100 VPE (what ends up in the flash of the chip)
+
+4000_ADPCM14-2-E2 0x0A 00001010
+4000_ADPCM14-3-E2 0x0B 00001011
+4000_ADPCM14-4-E2 0x0C 00001100
+4000_ADPCM14-5-E2 0x0D 00001101
+
+4000_DuLaw6       0x14 00010100
+4000_DuLaw7       0x15 00010101
+4000_DuLaw8       0x16 00010110
+
+4000_uLaw6        0x10 00010000
+4000_uLaw7        0x11 00010001
+4000_uLaw8        0x12 00010010
+
+4000_PCM8         0x18 00011000
+4000_PCM10        0x19 00011001
+4000_PCM12        0x1B 00011011
+
+4000_MSVBR14_5-1  0x1C 00011100
+4000_MSVBR14_5-2  0x1C 00011100
+4000_MSVBR14_5-0  0x1C 00011100
+
+The MSB 3 bits are the sample rate as described for the ISD2100 CFG0 register
+
+E.G:
+
+0x78 = 01111000 = 8000hz PCM8
+
+0xDC = 11011100 = 32000hz MSVBR14 (header used by the default sounds)
+
+
+The audio header seems to be repeated every 0xFFB bytes, Jrunner replicates this when creating sound data
+
+
+
+Conflicting info on what "SPI_IN" does:
+
+ISD2100 design guide doesn't mention what it does
+
+ISD15100 design guide mentions "SPI_IN and DECODE cannot be both on at the same time."
+
+ISD2360 design guide mentions "Needs to be set for SPI playback function."
+
+
+The 2100 seems to follow the 15100, SPI_IN being set entirely prevents audio playback
