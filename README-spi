@@ -1,20 +1,12 @@
-Basic stuff to interact with the ISD2100 on slim consoles + stream audio data
+Streaming audio data:
+
+View the isd1200_playspi function and read notes.txt for format and bitrate settings.
+
+Start audio data stream with scripts/sendcmd.py 10.42.0.140:902 PLAYSPI --norec 1 or press start
 
 
-data.c generated with:
+Generate data.c with:
 
 scripts/convert.py wavfile.wav auddata.bin
 
 xxd -n data -i auddata.bin > source/data.c
-
-VIEW isd1200_playspi FUNCTION FOR FORMAT+BITRATE SETTING
-
-
-Start audio data with scripts/sendcmd.py (or hack up the main.c if this tcp code is utterly broken)
-
-
-Credits:
-
-Main ISD library from Balázs Triszka's PicoFlasher
-
-https://github.com/X360Tools/PicoFlasher/
