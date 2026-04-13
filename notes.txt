@@ -1,25 +1,4 @@
-SPI_SND_DEC:
-
-So far only known instances of it being used:
-
-https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/speaker2/lib_speaker2/src/speaker2.c#L442
-https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/recnplay/lib_recnplay/src/recnplay.c#L307
-https://github.com/brathis/isd2360/blob/master/libraries/ISD2360/ISD2360.cpp#L451
-
-All instances seem to cap the data at 256 bytes. Not sure why
-
-If a stop command isn't periodically sent and/or the audio header isn't resent the audio becomes severely corrupted
-
-
-There's a unknown correlation on the audio header bitrate and the audio file bitrate when doing SPI decode
-
-So far the best results I could get was with exporting audio from Audacity with a 60000hz bitrate and PCM16 bit depth
-
-Max frequency I measured from the southbridge when doing a SPI transfer was ~500khz, could be related?
-
-
 AUDIO HEADER:
-
 
 Compression algorithm bytes from ISD15100 CFG0 register table (not applicable to the ISD2100 but has similarities to the "audio header")
 
@@ -73,7 +52,28 @@ E.G:
 0xDC = 11011100 = 32000hz MSVBR14 (header used by the default sounds)
 
 
-The audio header seems to be repeated every 0xFFB bytes, Jrunner replicates this when creating sound data
+The audio header seems to be repeated every 0xFFB bytes, J-Runner replicates this when creating sound data
+
+
+
+SPI_SND_DEC:
+
+So far only known instances of it being used:
+
+https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/speaker2/lib_speaker2/src/speaker2.c#L442
+https://github.com/MikroElektronika/mikrosdk_click_v2/blob/master/clicks/recnplay/lib_recnplay/src/recnplay.c#L307
+https://github.com/brathis/isd2360/blob/master/libraries/ISD2360/ISD2360.cpp#L451
+
+All instances seem to cap the data at 256 bytes. Not sure why
+
+If a stop command isn't periodically sent and/or the audio header isn't resent the audio becomes severely corrupted
+
+
+There's a unknown correlation on the audio header bitrate and the audio file bitrate when doing SPI decode
+
+So far the best results I could get was with exporting audio from Audacity with a 60000hz bitrate and PCM16 bit depth
+
+Max frequency I measured from the southbridge when doing a SPI transfer was ~500khz, could be related?
 
 
 
