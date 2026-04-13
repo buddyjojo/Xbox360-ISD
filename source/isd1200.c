@@ -64,10 +64,10 @@ bool isd1200_init()
 
 	nuvoton_spi_transfer(buf, sizeof(buf));
 
-	printf("id = %x\n", buf[1]);
-	printf("id = %x\n", buf[2]);
-	printf("id = %x\n", buf[3]);
-	printf("id = %x\n", buf[4]);
+	printf("PART_ID  = %02x\n", buf[1]);
+	printf("MAN_ID   = %02x\n", buf[2]);
+	printf("MEM_TYPE = %02x\n", buf[3]);
+	printf("DEV_ID   = %02x\n", buf[4]);
 
 	if (buf[1] != 0x03) // PART_ID
 		return false;
@@ -144,6 +144,22 @@ void isd1200_stop()
 	nuvoton_spi_transfer(buf, sizeof(buf));
 }
 
+void isd1200_set_cfg(uint8_t reg, uint8_t val)
+{
+	uint8_t buf[] = {CMD_WR_CFG_REG, reg, val};
+
+	nuvoton_spi_transfer(buf, sizeof(buf));
+}
+
+uint8_t isd1200_read_cfg(uint8_t reg)
+{
+	uint8_t buf[] = {CMD_RD_CFG_REG, reg, 0x00};
+
+	nuvoton_spi_transfer(buf, sizeof(buf));
+
+	return buf[2];
+}
+
 //Single stream, doesn't work for large streams
 
 void isd1200_playspi()
@@ -187,6 +203,15 @@ void isd1200_playspi()
 // 		offset += payload_len;
 // 	}
 // }
+
+void isd1200_spi_read(uint8_t *buffer)
+{
+	uint8_t buf[1 + 512] = {CMD_SPI_PCM_READ};
+
+	nuvoton_spi_transfer(buf, sizeof(buf));
+
+	memcpy(buffer, &buf[1], 512);
+}
 
 void isd1200_play_vp(uint16_t index)
 {

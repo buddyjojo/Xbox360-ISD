@@ -6,8 +6,8 @@ import os
 import sys
 import time
 
-TCP_IP = '10.42.0.140'
-TCP_PORT = 902
+# TCP_IP = '10.42.0.140'
+# TCP_PORT = 902
 
 ISD1200_INIT = 0xA0
 ISD1200_DEINIT = 0xA1
@@ -142,8 +142,14 @@ def init_isd():
 
 
 def main():
+    global TCP_IP, TCP_PORT
+
     parser = argparse.ArgumentParser(
         description="Write ISD flash data to 360 over TCP"
+    )
+    parser.add_argument(
+        "ip",
+        help="IP and port of the 360 e.g 10.42.0.140:902"
     )
     parser.add_argument(
         "filename",
@@ -155,6 +161,9 @@ def main():
     if not os.path.isfile(args.filename):
         print(f"Error: File '{args.filename}' not found.")
         sys.exit(1)
+
+    TCP_IP, TCP_PORT = args.ip.split(":")
+    TCP_PORT = int(TCP_PORT)
 
     init_isd()
 

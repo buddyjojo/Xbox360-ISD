@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+import argparse
 import socket
 import struct
 import sys
 
-TCP_IP = '10.42.0.140'
-TCP_PORT = 902
+# TCP_IP = '10.42.0.140'
+# TCP_PORT = 902
 
 ISD1200_READ_FLASH = 0xA3
 
@@ -24,10 +26,29 @@ def update_progress(pct):
     sys.stdout.write(f"\rProgress: {pct}%")
     sys.stdout.flush()
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((TCP_IP, TCP_PORT))
+def main():
+    parser = argparse.ArgumentParser(
+        description="Dump ISD flash"
+    )
+    parser.add_argument(
+        "ip",
+        help="IP and port of the 360 e.g 10.42.0.140:902"
+    )
+    parser.add_argument(
+        "filename",
+        type=str,
+        help="filename"
+    )
 
-    with open("output.bin", "wb") as f:
+    args = parser.parse_args()
+
+    TCP_IP, TCP_PORT = args.ip.split(":")
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    s.connect((TCP_IP, int(TCP_PORT)))
+
+    with open(args.filename, "wb") as f:
         for i in range(NUM_BLOCKS):
 
             packet = struct.pack(">BI", ISD1200_READ_FLASH, i)
@@ -42,4 +63,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         update_progress(100)
 
-print("\nDone.")
+    print("\nDone.")
+
+if __name__ == "__main__":
+    main()

@@ -28,6 +28,7 @@ void isd_tcp_init(void) {
         if (err == ERR_OK) {
             isd_pcb = tcp_listen(isd_pcb);
             tcp_accept(isd_pcb, isd_tcp_accept);
+            printf(" * port: %d\n", PORT_ISD);
         }
     }
 }

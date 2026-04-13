@@ -53,11 +53,15 @@ void isd1200_reset();
 uint8_t isd1200_read_id();
 void isd1200_stop();
 void isd1200_playspi();
+void isd1200_spi_read(uint8_t *buffer);
 void isd1200_play_vp(uint16_t index);
 void isd1200_exe_vm(uint16_t index);
 void isd1200_flash_read(uint32_t page, uint8_t *buffer);
 void isd1200_chip_erase();
 void isd1200_flash_write(uint32_t page, uint8_t *buffer);
+
+void isd1200_set_cfg(uint8_t reg, uint8_t val);
+uint8_t isd1200_read_cfg(uint8_t reg);
 
 void isd1200_test();
 

@@ -19,6 +19,10 @@ COMMANDS = {
     "EXEC_MACRO": 0xA7,
     "RESET": 0xA8,
     "PLAYSPI": 0xA9,
+    "READ_SPI": 0xB0,
+    "READ_CFG": 0xB1,
+    "SET_CFG": 0xB2,
+    "CMD_FIN": 0xB3
 }
 
 def recv_exact(sock, size):
@@ -45,8 +49,8 @@ def main():
     )
     parser.add_argument(
         "--arg",
-        type=int,
-        help="Argument to send e.g 5 for PLAYSPI",
+        type=str,
+        help="Argument to send e.g 5 for PLAYSPI, 0x2 for READ_CFG, 0x0060 for SET_CFG",
         required=False
     )
     parser.add_argument(
@@ -69,7 +73,13 @@ def main():
         packet = bytes([cmd_hex])
         s.send(packet)
     else:
-        packet = struct.pack(">BH", cmd_hex, args.arg)
+        is_hex = args.arg.lower().startswith("0x")
+        arg_val = int(args.arg, 0)
+        if is_hex and len(args.arg) <= 4:
+            fmt = ">BB"
+        else:
+            fmt = ">BH"
+        packet = struct.pack(fmt, cmd_hex, arg_val)
         s.send(packet)
         
     if args.norec is None:
