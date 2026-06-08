@@ -15,6 +15,9 @@ Follow the on screen text.
 ### With networking:
 View the scripts subdirectory.
 
+## Notes
+If the ISD is non responsive, unplug the 360, wait a bit then plug it back in.
+
 ## Advanced
 For streaming audio data to the ISD (yes, you can do that) view README-spi for info
 
