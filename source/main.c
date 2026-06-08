@@ -65,9 +65,20 @@ int main(void)
 	if(!ret)
 		printf("isd1200_init failed!\n");
 
-	printf("\nSoftSonus\n\n");
+	printf("\nSoftSonus");
+	printf("\nCreated by Buddyjojo\n\n");
 
-	printf("A: Play power\nB: Play eject\nX: Read ISD flash to uda:/isddump.bin\nY: Write uda:/isdflash.bin to ISD flash\nStart: Start spi audio stream\nLB: Dump power PCM to uda:/power.raw\nRB: Dump eject PCM to uda:/eject.raw\nBack: exit\n\n");
+	printf( "A: Play power\n"
+			"B: Play eject\n"
+			"X: Read ISD flash to uda:/isddump.bin\n"
+			"Y: Write uda:/isdflash.bin to ISD flash\n"
+			"Start: Start spi audio stream\n"
+			"LB: Dump power PCM to uda:/power.raw\n"
+			"RB: Dump eject PCM to uda:/eject.raw\n"
+			"LS: Reset ISD\n"
+			"Back: exit\n");
+
+	printf("\nPress LS after a *successful* write, or if the faceplate eject was touched/pressed.\n\n");
 
 	int fileops = 1;
 	handle=-1;
@@ -107,9 +118,11 @@ int main(void)
 							printf("Written bytes not 512\n");
 							break;
 						}
+						printf("\rProgress: %3d%%", (i + 1) * 100 / (0xB000 / 512));
+						fflush(stdout);
 					}
 					fclose(fp);
-					printf("Dumped flash to uda:/isddump.bin\n");
+					printf("\nDumped flash to uda:/isddump.bin\n");
 				}
 
 			} else {
@@ -153,9 +166,32 @@ int main(void)
 							goto fclose;
 						}
 						isd1200_flash_write(i, buffer);
+						printf("\rProgress: %3d%%", (i + 1) * 100 / (0xB000 / 16));
+						fflush(stdout);
 					}
 
-					printf("Write finished!\n");
+					printf("\nVerifying flash....\n");
+
+					fseek(fp, 0, SEEK_SET);
+
+					uint8_t freadbuffer[512];
+					uint8_t isdreadbuffer[512];
+					for (uint32_t i = 0; i < 0xB000 / 512; i++) {
+						if (fread(freadbuffer, 512, 1, fp) != 1) {
+							printf("fread failed at block %u\n", i);
+							goto fclose;
+						}
+
+						isd1200_flash_read(i, isdreadbuffer);
+
+						if (memcmp(freadbuffer, isdreadbuffer, 512) != 0) {
+							printf("Data mismatch at block %u\n", i);
+						}
+						printf("\rProgress: %3d%%", (i + 1) * 100 / (0xB000 / 512));
+						fflush(stdout);
+					}
+
+					printf("\nWrite finished!\n");
 fclose:
 					fclose(fp);
 
@@ -195,17 +231,24 @@ fclose:
 							break;
 						}
 						total_written += written;
+						printf("\rDumped %d bytes", total_written);
+						fflush(stdout);
 					}
 
 					fclose(fp);
+					printf("\n");
 					isd1200_reset();
 					isd1200_init();
-					printf("Dumped %d bytes\n", total_written);
 				}
 
 			} else {
 				printf("No drives to write to!\n");
 			}
+		}
+		if (pad.s1_z && !prev.s1_z) {
+			isd1200_deinit();
+			isd1200_reset();
+			isd1200_init();
 		}
 
 		prev = pad;
