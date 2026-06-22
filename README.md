@@ -4,7 +4,7 @@ Flash the ISD sound chip of Xbox 360 sim consoles in software. No soldering requ
 
 ## Instructions
 
-Use the J-Runner ISD sound editor to create a .bin file
+Use the J-Runner ISD sound editor to create a .bin file. [Guide](https://consolemods.org/wiki/Xbox_360:Sonus_360#Creating_Compatible_Sound_Files)
 
 ### With flash drive:
 
